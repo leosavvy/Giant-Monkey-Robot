@@ -1,10 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using LitJson;
 using System.IO;
 using System.Linq;
-using UnityEngine.SceneManagement;
+using SFB;
+using UnityEngine.UI;
 
 public class GMRJson
 {
@@ -29,16 +29,20 @@ public enum ItemType
 
 public class GameManager : MonoBehaviour
 {
-    public GameManager gameManager;
+    public static GameManager gameManager;
 
+    public Text Title;
+ 
     public GameObject Header;
     public GameObject Content;
 
-    public GameObject HeaderItem;
-    public GameObject Row;
-    public GameObject RowItem;
+    private string JSON_PATH;
+    private string jsonText;
 
     List<string> Values = new List<string>();
+
+    public List<GameObject> AllItems = new List<GameObject>();
+
     
 
     // Start is called before the first frame update
@@ -53,9 +57,26 @@ public class GameManager : MonoBehaviour
             Destroy(this);
         }
 
-        var JSON_PATH = Application.dataPath + "/StreamingAssets/JsonChallenge.json";
+        JSON_PATH = Application.dataPath + "/StreamingAssets/JsonChallenge.json";
 
-        var jsonData = JsonMapper.ToObject(File.ReadAllText(JSON_PATH));
+        jsonText = File.ReadAllText(JSON_PATH);
+
+        if (jsonText.Length == 0)
+        {
+            LoadJson();
+            return;
+        }
+        else
+        {
+            StartGame();
+        }
+    }
+
+    void StartGame()
+    {
+        jsonText = File.ReadAllText(JSON_PATH);
+
+        var jsonData = JsonMapper.ToObject(jsonText);
 
         var keys = getKeysFromJson(jsonData);
 
@@ -67,13 +88,14 @@ public class GameManager : MonoBehaviour
         {
             HandleRawJson(keys, jsonData);
         }
-
     }
 
     void HandleStructuredJson(GMRJson structuredData)
     {
         HeaderController header = Header.GetComponent<HeaderController>();
         ContentController content = Content.GetComponent<ContentController>();
+
+        Title.text = structuredData.Title;
 
         foreach (var headerColum in structuredData.ColumnHeaders)
         {
@@ -84,7 +106,6 @@ public class GameManager : MonoBehaviour
         {
             content.AddRow(dataItem);
         }
-        
     }
 
     void HandleRawJson(IEnumerable<string> keys, JsonData jsonData)
@@ -144,6 +165,32 @@ public class GameManager : MonoBehaviour
 
     public void ReloadJson()
     {
-        SceneManager.LoadScene(0);
+        ClearItems();
+
+        AllItems = new List<GameObject>();
+
+        StartGame();
+    }
+
+    public void LoadJson()
+    {
+        ClearItems();
+
+        JSON_PATH = StandaloneFileBrowser.OpenFilePanel("Select Json", "", "json", false)[0];
+
+        if (JSON_PATH.Length != 0)
+        {
+            jsonText = File.ReadAllText(JSON_PATH);
+        }
+
+        StartGame();
+    }
+
+    private void ClearItems()
+    {
+        foreach (GameObject go in AllItems)
+        {
+            GameObject.Destroy(go);
+        }
     }
 }

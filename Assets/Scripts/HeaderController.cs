@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class HeaderController : MonoBehaviour
@@ -12,16 +10,17 @@ public class HeaderController : MonoBehaviour
         GameObject headerItem = Instantiate(HeaderItem, this.transform);
         headerItem.layer = 5;
 
-        headerItem.transform.position = new Vector3(0, 0, 0);
+        headerItem.transform.position = Vector3.zero;
 
         Text textComponent = headerItem.GetComponent<Text>();
 
         textComponent.text = itemType == ItemType.Raw ? TextValue.Replace("_", " ").ToUpper() : TextValue;
         textComponent.alignment = TextAnchor.MiddleCenter;
-        textComponent.color = new Color(255, 255, 255);
+        textComponent.color = Color.white;
         textComponent.fontSize = 15;
         textComponent.fontStyle = FontStyle.Bold;
         textComponent.horizontalOverflow = HorizontalWrapMode.Overflow;
-        
+
+        GameManager.gameManager.AllItems.Add(headerItem);
     }
 }

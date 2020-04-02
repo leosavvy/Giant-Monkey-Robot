@@ -1,24 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class RowController : MonoBehaviour
 {
     public GameObject RowItem;
-
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 
     public void AddRowItem(string TextValue)
     {
@@ -35,5 +20,7 @@ public class RowController : MonoBehaviour
         textComponent.fontSize = 15;
         textComponent.fontStyle = FontStyle.Bold;
         textComponent.horizontalOverflow = HorizontalWrapMode.Overflow;
+
+        GameManager.gameManager.AllItems.Add(this.gameObject);
     }
 }
