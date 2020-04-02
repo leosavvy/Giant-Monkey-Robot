@@ -5,7 +5,7 @@ public class HeaderController : MonoBehaviour
 {
     public GameObject HeaderItem;
 
-    public void AddHeader(string TextValue, ItemType itemType)
+    public void AddHeader(string TextValue)
     {
         GameObject headerItem = Instantiate(HeaderItem, this.transform);
         headerItem.layer = 5;
@@ -14,7 +14,7 @@ public class HeaderController : MonoBehaviour
 
         Text textComponent = headerItem.GetComponent<Text>();
 
-        textComponent.text = itemType == ItemType.Raw ? TextValue.Replace("_", " ").ToUpper() : TextValue;
+        textComponent.text = TextValue;
         textComponent.alignment = TextAnchor.MiddleCenter;
         textComponent.color = Color.white;
         textComponent.fontSize = 15;

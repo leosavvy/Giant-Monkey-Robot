@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using SFB;
 using UnityEngine.UI;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 public class GMRJson
 {
@@ -39,8 +41,6 @@ public class GameManager : MonoBehaviour
     private string JSON_PATH;
     private string jsonText;
 
-    List<string> Values = new List<string>();
-
     public List<GameObject> AllItems = new List<GameObject>();
 
     
@@ -74,93 +74,39 @@ public class GameManager : MonoBehaviour
 
     void StartGame()
     {
-        jsonText = File.ReadAllText(JSON_PATH);
+        var data = (JObject)JsonConvert.DeserializeObject(File.ReadAllText(JSON_PATH));
 
-        var jsonData = JsonMapper.ToObject(jsonText);
+        Title.text = data["Title"].ToString();
 
-        var keys = getKeysFromJson(jsonData);
-
-        if (keys.Any(k => k == "Title"))
-        {
-            HandleStructuredJson(JsonMapper.ToObject<GMRJson>(File.ReadAllText(JSON_PATH)));
-        }
-        else
-        {
-            HandleRawJson(keys, jsonData);
-        }
+        AddHeaders(data);
+        AddRows(data);
     }
 
-    void HandleStructuredJson(GMRJson structuredData)
+    void AddRows(JObject data)
     {
-        HeaderController header = Header.GetComponent<HeaderController>();
         ContentController content = Content.GetComponent<ContentController>();
 
-        Title.text = structuredData.Title;
-
-        foreach (var headerColum in structuredData.ColumnHeaders)
+        foreach (var item in data["Data"])
         {
-            header.AddHeader(headerColum, ItemType.Structured);
-        }
+            var rowValues = new List<string>();
 
-        foreach (var dataItem in structuredData.Data)
-        {
-            content.AddRow(dataItem);
+            foreach (string key in data["ColumnHeaders"])
+            {
+                rowValues.Add(item[key].ToString());
+            }
+
+            content.AddRow(rowValues);
         }
     }
 
-    void HandleRawJson(IEnumerable<string> keys, JsonData jsonData)
+    void AddHeaders(JObject data)
     {
         HeaderController header = Header.GetComponent<HeaderController>();
-        ContentController content = Content.GetComponent<ContentController>();
 
-        foreach (var key in keys)
+        foreach (string key in data["ColumnHeaders"])
         {
-            header.AddHeader(key, ItemType.Raw);
+            header.AddHeader(key.ToString());
         }
-
-        foreach (JsonData jsonItem in jsonData)
-        {
-            content.AddRow(getValues(jsonItem, keys));
-        }
-    }
-
-    IEnumerable<string> getKeysFromJson(JsonData jsonData)
-    {
-        List<string> Keys = new List<string>();
-
-        if (jsonData.IsArray)
-        {
-            foreach (JsonData jsonItem in jsonData)
-            {
-                foreach (var key in jsonItem.Keys)
-                {
-                    Keys.Add(key.ToString());
-                }
-            }
-
-            return Keys.Distinct();
-        }
-        else
-        {
-            foreach (var key in jsonData.Keys)
-            {
-                Keys.Add(key.ToString());
-            }
-
-            return Keys.Distinct();
-        }
-    }
-
-    IEnumerable<string> getValues(JsonData jsonData, IEnumerable<string> Keys)
-    {
-        List<string> values = new List<string>();
-
-        foreach (var key in Keys)
-        {
-            values.Add(jsonData[key.ToString()].ToString());
-        }
-
-        return values;
     }
 
     public void ReloadJson()

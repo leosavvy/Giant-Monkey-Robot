@@ -21,19 +21,4 @@ public class ContentController : MonoBehaviour
         GameManager.gameManager.AllItems.Add(row);
     }
 
-    public void AddRow(GMRJsonDataItem dataItem)
-    {
-        GameObject row = Instantiate(Row, this.transform);
-        row.layer = 5;
-        row.transform.position = Vector3.zero;
-
-        var rowController = row.GetComponent<RowController>();
-
-        rowController.AddRowItem(dataItem.ID);
-        rowController.AddRowItem(dataItem.Name);
-        rowController.AddRowItem(dataItem.Role);
-        rowController.AddRowItem(dataItem.Nickname);
-
-        GameManager.gameManager.AllItems.Add(row);
-    }
 }
